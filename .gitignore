@@ -1,3 +1,6 @@
 build
 *.dmp
 *.dump
+compile_commands.json
+.clangd
+.cache
