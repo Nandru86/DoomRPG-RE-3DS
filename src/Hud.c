@@ -61,8 +61,8 @@ void Hud_addMessage(DoomCanvas_t* doomCanvas, char* str)
 void Hud_addMessageForce(DoomCanvas_t* doomCanvas, char* str, boolean force)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -92,8 +92,8 @@ void Hud_addMessageForce(DoomCanvas_t* doomCanvas, char* str, boolean force)
 void Hud_calcMsgTime(DoomCanvas_t* doomCanvas)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -136,8 +136,8 @@ void Hud_drawCompass(DoomCanvas_t* doomCanvas, int dir, SDL_Surface* targetSurfa
 void Hud_drawBarTilesSur(DoomCanvas_t* doomCanvas, int x, int y, int width, boolean isLargerStatusBar, SDL_Surface* surface)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -229,8 +229,8 @@ void Hud_drawBarLine(DoomCanvas_t* doomCanvas, int x1, int y1, int x2, int y2, S
 void Hud_drawBarTiles(DoomCanvas_t* doomCanvas, int x, int y, int width, boolean isLargerStatusBar)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -251,8 +251,8 @@ void Hud_drawBarTiles(DoomCanvas_t* doomCanvas, int x, int y, int width, boolean
 void Hud_drawBarTilesSur(DoomCanvas_t* doomCanvas, int x, int y, int width, boolean isLargerStatusBar, SDL_Surface* surface)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -272,8 +272,8 @@ void Hud_drawBarTilesSur(DoomCanvas_t* doomCanvas, int x, int y, int width, bool
 void Hud_drawBottomBar(DoomCanvas_t* doomCanvas)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -289,6 +289,9 @@ void Hud_drawBottomBar(DoomCanvas_t* doomCanvas)
     sdlVideo.screenSurface->format->Bmask,
     sdlVideo.screenSurface->format->Amask
 );
+/*    if (!tmpSurface){
+        return;
+    }*/
     Image_t* img;
     CombatEntity_t* ce;
     Combat_t* combat;
@@ -457,8 +460,8 @@ void Hud_drawBottomBar(DoomCanvas_t* doomCanvas)
 void Hud_drawBottomBarSur(DoomCanvas_t* doomCanvas, SDL_Surface* surface)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -643,8 +646,8 @@ void Hud_drawBottomBarSur(DoomCanvas_t* doomCanvas, SDL_Surface* surface)
 void Hud_drawEffects(DoomCanvas_t* doomCanvas)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -705,8 +708,8 @@ void Hud_drawEffects(DoomCanvas_t* doomCanvas)
 void Hud_drawTopBar(DoomCanvas_t* doomCanvas)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -720,6 +723,9 @@ void Hud_drawTopBar(DoomCanvas_t* doomCanvas)
     sdlVideo.screenSurface->format->Bmask,
     sdlVideo.screenSurface->format->Amask
 );
+/*if(!tmpSurface){
+    return;
+}*/
     char* text;
     int len;
     int time, w;
@@ -748,6 +754,7 @@ void Hud_drawTopBar(DoomCanvas_t* doomCanvas)
         text = doomCanvas->hud->messages[0];
         if (updateTime) {
             if (doomCanvas->hud->msgDuration < (doomCanvas->time - doomCanvas->hud->msgTime)) {
+                SDL_FreeSurface(tmpSurface);
                 return;
             }
         
@@ -775,6 +782,7 @@ void Hud_drawTopBar(DoomCanvas_t* doomCanvas)
         text = doomCanvas->player->facingEntity->def->name;
     }
     else {
+        SDL_FreeSurface(tmpSurface);
         return;
     }  
 
@@ -805,8 +813,8 @@ void Hud_drawTopBar(DoomCanvas_t* doomCanvas)
 void Hud_drawTopBarSur(DoomCanvas_t* doomCanvas, SDL_Surface* surface)
 {
 #if skipNullptr
-    if (!hud->doomRpg->doomCanvas) {
-        DoomRPG_ReinitCanvasAndRenderer(hud->doomRpg);
+    if (!doomCanvas->doomRpg->doomCanvas) {
+        DoomRPG_ReinitCanvasAndRenderer(doomCanvas->doomRpg);
         return;
     }
 #endif
@@ -848,6 +856,7 @@ void Hud_drawTopBarSur(DoomCanvas_t* doomCanvas, SDL_Surface* surface)
         text = doomCanvas->hud->messages[0];
         if (updateTime) {
             if (doomCanvas->hud->msgDuration < (doomCanvas->time - doomCanvas->hud->msgTime)) {
+                SDL_FreeSurface(tmpSurface);
                 return;
             }
 
@@ -875,6 +884,7 @@ void Hud_drawTopBarSur(DoomCanvas_t* doomCanvas, SDL_Surface* surface)
         text = doomCanvas->player->facingEntity->def->name;
     }
     else {
+        SDL_FreeSurface(tmpSurface);
         return;
     }
 
