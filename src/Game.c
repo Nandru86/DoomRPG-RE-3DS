@@ -800,6 +800,152 @@ void Game_loadConfig(Game_t* game)
 		SDL_RWclose(rw);
 	}
 }
+/*void Game_loadConfig(Game_t* game)
+{
+	// Esta version hace un dump de las configuraciones 
+	// a un archivo de texto plano, a medida que las va leyendo
+    SDL_RWops* rw;
+    FILE* textOut; // Puntero para nuestro archivo de texto plano
+    int version;
+    byte boolData;
+    int intData;
+
+    printf("loadConfig\n");
+
+    rw = SDL_RWFromFile("DoomRPG/Saves/Config", "r");
+    if (rw) {
+        version = File_readInt(rw);
+        if (version == CONFIG_VERSION) {
+            
+            // Intentamos crear el archivo de texto plano para escribir
+            textOut = fopen("DoomRPG/Saves/Config_plano.txt", "w");
+            if (textOut) {
+                fprintf(textOut, "--- CONFIGURACION DE DOOM RPG ---\n");
+                fprintf(textOut, "version: %d\n", version);
+            }
+
+            boolData = File_readByte(rw);
+            if (game) {
+                game->doomRpg->doomCanvas->vibrateEnabled = boolData != 0 ? true : false;
+            }
+            if (textOut) fprintf(textOut, "vibrateEnabled: %d\n", boolData);
+
+            intData = File_readInt(rw);
+            if (game) {
+                game->doomRpg->sound->volume = intData;
+            }
+            if (textOut) fprintf(textOut, "volume: %d\n", intData);
+
+            intData = File_readInt(rw);
+            if (game) {
+                DoomCanvas_setAnimFrames(game->doomRpg->doomCanvas, intData);
+            }
+            if (textOut) fprintf(textOut, "animFrames: %d\n", intData);
+
+            intData = File_readInt(rw);
+            if (game) {
+                game->doomRpg->player->totalDeaths = intData;
+            }
+            if (textOut) fprintf(textOut, "totalDeaths: %d\n", intData);
+
+            // New
+            boolData = File_readByte(rw);
+            sdlVideo.fullScreen = boolData != 0 ? true : false;
+            if (textOut) fprintf(textOut, "fullScreen: %d\n", boolData);
+
+            // New
+            boolData = File_readByte(rw);
+            sdlVideo.vSync = boolData != 0 ? true : false;
+            if (textOut) fprintf(textOut, "vSync: %d\n", boolData);
+
+            // New
+            boolData = File_readByte(rw);
+            sdlVideo.integerScaling = boolData != 0 ? true : false;
+            if (textOut) fprintf(textOut, "integerScaling: %d\n", boolData);
+
+            // New
+            boolData = File_readByte(rw);
+            sdlVideo.displaySoftKeys = boolData != 0 ? true : false;
+            if (textOut) fprintf(textOut, "displaySoftKeys: %d\n", boolData);
+
+            // New
+            intData = File_readInt(rw);
+            sdlVideo.resolutionIndex = intData;
+            if (textOut) fprintf(textOut, "resolutionIndex: %d\n", intData);
+
+            // New
+            intData = File_readInt(rw);
+            if (game) {
+                game->doomRpg->doomCanvas->mouseSensitivity = intData;
+            }
+            if (textOut) fprintf(textOut, "mouseSensitivity: %d\n", intData);
+
+            // New
+            boolData = File_readByte(rw);
+            if (game) {
+                game->doomRpg->doomCanvas->mouseYMove = boolData != 0 ? true : false;
+            }
+            if (textOut) fprintf(textOut, "mouseYMove: %d\n", boolData);
+
+            // New
+            intData = File_readInt(rw);
+            sdlController.deadZoneLeft = intData;
+            if (textOut) fprintf(textOut, "deadZoneLeft: %d\n", intData);
+
+            // New
+            intData = File_readInt(rw);
+            sdlController.deadZoneRight = intData;
+            if (textOut) fprintf(textOut, "deadZoneRight: %d\n", intData);
+
+            // New
+            boolData = File_readByte(rw);
+            if (game) {
+                game->doomRpg->doomCanvas->sndPriority = boolData != 0 ? true : false;
+            }
+            if (textOut) fprintf(textOut, "sndPriority: %d\n", boolData);
+
+            // New
+            boolData = File_readByte(rw);
+            if (game) {
+                game->doomRpg->doomCanvas->renderFloorCeilingTextures = boolData != 0 ? true : false;
+            }
+            if (textOut) fprintf(textOut, "renderFloorCeilingTextures: %d\n", boolData);
+
+            // New
+            if (textOut) fprintf(textOut, "\n--- KEY MAPPINGS ---\n");
+            if (game) {
+                for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < KEYBINDS_MAX; j++) {
+                        // Guardamos el valor temporalmente para poder imprimirlo antes de asignarlo
+                        int keyBindValue = File_readInt(rw);
+                        keyMapping[i].keyBinds[j] = keyBindValue;
+                        if (textOut) {
+                            fprintf(textOut, "keyMapping[%d][%d]: %d\n", i, j, keyBindValue);
+                        }
+                    }
+                }
+                SDL_memcpy(keyMappingTemp, keyMapping, sizeof(keyMapping));
+            }
+            
+            // Cerramos el archivo de texto y avisamos por consola
+            if (textOut) {
+                fclose(textOut);
+                printf("Archivo de configuracion plano exportado exitosamente.\n");
+            }
+
+        }
+        else {
+            printf("loadConfig: save version mismatch (expected %d found %d)\n", CONFIG_VERSION, version);
+        }
+    }
+    else {
+        printf("loadConfig: (%s)\n", SDL_GetError());
+    }
+
+    if (rw) {
+        SDL_RWclose(rw);
+    }
+}*/
 
 void Game_loadMapEntities(Game_t* game)
 {
@@ -1764,7 +1910,8 @@ void Game_saveConfig(Game_t* game, int num)
 	File_writeInt(rw, sdlController.deadZoneLeft);
 	File_writeInt(rw, sdlController.deadZoneRight);
 	File_writeByte(rw, game->doomRpg->doomCanvas->sndPriority);
-	File_writeByte(rw, game->doomRpg->doomCanvas->renderFloorCeilingTextures);
+	//File_writeByte(rw, game->doomRpg->doomCanvas->renderFloorCeilingTextures);
+	File_writeByte(rw, 1);
 
 	for (int i = 0; i < 12; i++) {
 		for (int j = 0; j < KEYBINDS_MAX; j++) {

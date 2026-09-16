@@ -351,7 +351,7 @@ void Menu_initMenu(Menu_t* menu, int i)
 			menuSystem->imgBG = &menuSystem->imgLogo;
 			menuSystem->oldMenu = -1;
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Start Game", 2, 0);
-			//MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Options   ", 2, 0);
+			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Options   ", 2, 1);
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Help/About", 2, 2);
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Exit      ", 2, 3);
 			break;
@@ -402,7 +402,7 @@ void Menu_initMenu(Menu_t* menu, int i)
 			break;
 		}
 
-		/*case MENU_MAIN_OPTIONS:
+		case MENU_MAIN_OPTIONS:
 		case MENU_INGAME_OPTIONS: {
 			if (i == MENU_INGAME_OPTIONS) {
 				strncpy(menu->doomRpg->hud->logMessage, "Options", sizeof(menu->doomRpg->hud->logMessage));
@@ -425,7 +425,7 @@ void Menu_initMenu(Menu_t* menu, int i)
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Sound", 0, (i == MENU_INGAME_OPTIONS) ? true : false);
 
 
-#if 0 // Original Code
+/*#if 0 // Original Code
 			if (doomCanvas->sndFXOnly == false) {
 				MenuItem_Set2(&menuSystem->items[menuSystem->numItems++], "Vibrate:",
 					doomCanvas->vibrateEnabled ? "on" : "off", 0, 0);
@@ -450,9 +450,9 @@ void Menu_initMenu(Menu_t* menu, int i)
 				MenuItem_Set(&menuSystem->items[menuSystem->numItems++], NULL, 0, 0);
 			}
 #endif
-
+*/
 			break;
-		}*/
+		}
 
 		case MENU_ENABLE_SOUNDS: {
 			Menu_setYesNo(menu, "Enable sounds?");
@@ -519,7 +519,7 @@ void Menu_initMenu(Menu_t* menu, int i)
 			strncpy(menu->doomRpg->hud->logMessage, "Notebook", MS_PER_CHAR);
 			menuSystem->type = 5;
 			menuSystem->imgBG = (Image_t*)0x0;
-			menuSystem->oldMenu = MENU_ITEMS;
+			menuSystem->oldMenu = MENU_INGAME;
 			Menu_setNotes(menu);
 			break;
 		}
@@ -542,12 +542,13 @@ void Menu_initMenu(Menu_t* menu, int i)
 
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Resume Game", 0, MENU_NONE);
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Inventory", 0, MENU_ITEMS);
+			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Notebook", 0, MENU_INGAME_NOTEBOOK);
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Save Game", 0, MENU_INGAME_SAVE);
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Load Game", 0, MENU_INGAME_LOAD);
 			//MenuItem_Set(&menuSystem->items[menuSystem->numItems++], //"Automap", 0, MENU_NONE);
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Status", 0, MENU_INGAME_STATUS);
 			//MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Help/About", 0, MENU_INGAME_HELP_ABOUT);
-			//MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Options", 0, MENU_INGAME_OPTIONS);
+			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Options", 0, MENU_INGAME_OPTIONS);
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], "Main Menu", 0, MENU_INGAME_EXIT);
 			break;
 		}
@@ -1020,9 +1021,9 @@ void Menu_initMenu(Menu_t* menu, int i)
 			textDivider = MenuSystem_buildDivider(menuSystem, "Resolution");
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], textDivider, 3, 0);
 			SDL_snprintf(text, sizeof(text), "(%dx%d)", sdlVideoModes[sdlVideo.resolutionIndex].width, sdlVideoModes[sdlVideo.resolutionIndex].height);
-#endif
 			MenuItem_Set2(&menuSystem->items[menuSystem->numItems++], text, NULL, 2, 0);
-
+#endif
+			
 			textDivider = MenuSystem_buildDivider(menuSystem, "Display");
 			MenuItem_Set(&menuSystem->items[menuSystem->numItems++], textDivider, 3, 0);
 #ifdef __3DS__
@@ -1030,7 +1031,6 @@ void Menu_initMenu(Menu_t* menu, int i)
 			MenuItem_Set2(&menuSystem->items[menuSystem->numItems++], "Softkeys:", sdlVideo.displaySoftKeys ? "on" : "off", 0, 0);
 #endif
 			MenuItem_Set2(&menuSystem->items[menuSystem->numItems++], "Floor/Ceil:", menu->doomRpg->doomCanvas->renderFloorCeilingTextures ? "on" : "off", 0, 0);
-			
 			break;
 		}
 
@@ -1501,7 +1501,8 @@ int Menu_select(Menu_t* menu, int menuId, int itemId)
 		}
 
 		case MENU_INGAME_NOTEBOOK: {
-			return MENU_ITEMS;
+			//return MENU_ITEMS;
+			return menuSystem->oldMenu;
 			break;
 		}
 
@@ -1513,14 +1514,18 @@ int Menu_select(Menu_t* menu, int menuId, int itemId)
 		case MENU_INGAME: {
 			menuSystem->oldMenu = MENU_NONE;
 
-			if (itemId == 2) {
+			if (menuId == 2){
+				menuSystem->oldMenu = MENU_INGAME;
+				return action;
+			}
+			else if (itemId == 3) {
 				DoomCanvas_saveState(doomCanvas, 3, "Saving Game...");
 				break;
 			}
-			else if(itemId == 3) {
-				return Game_checkConfigVersion(menu->doomRpg->game) ? MENU_INGAME_LOAD : MENU_INGAME_LOADNOSAVE;
-			}
-			else if (itemId == 4) {
+			// else if(itemId == 4) {
+			// 	return Game_checkConfigVersion(menu->doomRpg->game) ? MENU_INGAME_LOAD : MENU_INGAME_LOADNOSAVE;
+			// }
+			else if (itemId == 5) {
 				DoomCanvas_setState(doomCanvas, ST_AUTOMAP);
 				return action;
 			}
@@ -1577,6 +1582,7 @@ int Menu_select(Menu_t* menu, int menuId, int itemId)
 				return MENU_ITEMS;
 			}
 			if (menu->f711c - 1 == itemId) {
+				menuSystem->oldMenu = MENU_ITEMS;
 				return MENU_INGAME_NOTEBOOK;
 			}
 			if (menu->f711c <= itemId) {
@@ -1951,11 +1957,19 @@ int Menu_select(Menu_t* menu, int menuId, int itemId)
 		case MENU_VIDEO:
 		case MENU_INGAME_VIDEO:
 
+
+#ifdef __3DS__
+			if (itemId == 2) { // New display SoftKeys Option
+				doomCanvas->renderFloorCeilingTextures ^= true;
+				strncpy(menuSystem->items[itemId].textField2, doomCanvas->renderFloorCeilingTextures ? "on" : "off", sizeof(menuSystem->items[itemId].textField2));
+			}
+			else if (itemId == 0) {
+				return menuSystem->oldMenu;
+			}
+#else
 			if (itemId == 0) {
 				return menuSystem->oldMenu;
 			}
-#ifdef __3DS__
-#else
 			else if (itemId == 1) { // New Full Screen Option
 
 				sdlVideo.fullScreen ^= true;

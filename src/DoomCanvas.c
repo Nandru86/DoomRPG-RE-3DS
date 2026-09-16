@@ -1933,7 +1933,8 @@ void DoomCanvas_drawScrollBar(DoomCanvas_t* doomCanvas, int y, int totalHeight, 
 	}
 
 }
-void DoomCanvas_drawScrollBarSur(DoomCanvas_t* doomCanvas, int y, int totalHeight, int i3, int i4, int i5, SDL_Surface* surface)
+
+void DoomCanvas_drawScrollBarSur(DoomCanvas_t* doomCanvas, int y, int totalHeight, int i3, int i4, int i5, int boxHalfWidth, SDL_Surface* surface)
 {
 	int i6 = i4 - i3;
 	if (i6 != 0) {
@@ -1944,18 +1945,18 @@ void DoomCanvas_drawScrollBarSur(DoomCanvas_t* doomCanvas, int y, int totalHeigh
 		}
 		int barOffset_y = offSetY + 7;
 
-		DoomCanvas_drawImageSpecialSur(doomCanvas, &doomCanvas->doomRpg->menuSystem->imgArrowUpDown, 0, 0, 7, 7, 0, doomCanvas->SCR_CX + 64, y, 9, surface);
-		DoomCanvas_drawImageSpecialSur(doomCanvas, &doomCanvas->doomRpg->menuSystem->imgArrowUpDown, 0, 7, 7, 7, 0, doomCanvas->SCR_CX + 64, y + totalHeight, 10, surface);
+		DoomCanvas_drawImageSpecialSur(doomCanvas, &doomCanvas->doomRpg->menuSystem->imgArrowUpDown, 0, 0, 7, 7, 0, doomCanvas->SCR_CX + boxHalfWidth, y, 9, surface);
+		DoomCanvas_drawImageSpecialSur(doomCanvas, &doomCanvas->doomRpg->menuSystem->imgArrowUpDown, 0, 7, 7, 7, 0, doomCanvas->SCR_CX + boxHalfWidth, y + totalHeight, 10, surface);
 
 		DoomRPG_setColor(doomCanvas->doomRpg, 0x888888);
-		DoomRPG_fillRectSur(doomCanvas->doomRpg, (doomCanvas->SCR_CX + 64) - 7, y + 7, 7, totalHeight - 14, surface);
+		DoomRPG_fillRectSur(doomCanvas->doomRpg, (doomCanvas->SCR_CX + boxHalfWidth) - 7, y + 7, 7, totalHeight - 14, surface);
 
 		DoomRPG_setColor(doomCanvas->doomRpg, 0xDDDDDD);
-		DoomRPG_fillRectSur(doomCanvas->doomRpg, (doomCanvas->SCR_CX + 64) - 7, y + barOffset_y, 7, barHeight, surface);
+		DoomRPG_fillRectSur(doomCanvas->doomRpg, (doomCanvas->SCR_CX + boxHalfWidth) - 7, y + barOffset_y, 7, barHeight, surface);
 
 		DoomRPG_setColor(doomCanvas->doomRpg, 0x000000);
-		DoomRPG_drawRectSur(doomCanvas->doomRpg, (doomCanvas->SCR_CX + 64) - 7, y + barOffset_y, 6, barHeight - 1, surface);
-		DoomRPG_drawRectSur(doomCanvas->doomRpg, (doomCanvas->SCR_CX + 64) - 7, y, 6, totalHeight - 1, surface);
+		DoomRPG_drawRectSur(doomCanvas->doomRpg, (doomCanvas->SCR_CX + boxHalfWidth) - 7, y + barOffset_y, 6, barHeight - 1, surface);
+		DoomRPG_drawRectSur(doomCanvas->doomRpg, (doomCanvas->SCR_CX + boxHalfWidth) - 7, y, 6, totalHeight - 1, surface);
 	}
 
 }
@@ -2130,7 +2131,8 @@ void DoomCanvas_drawFont(DoomCanvas_t* doomCanvas, char* text, int x, int y, int
 
     SDL_Surface* fontSurface = SDL_CreateRGBSurface(
         SDL_SWSURFACE,
-        charAdvanceWidth * (len - strBeg), // width is maximum possible without breaking lines
+        //charAdvanceWidth * (len - strBeg), // width is maximum possible without breaking lines
+	    charAdvanceWidth * (len - strBeg) + (charCellWidth - charAdvanceWidth), // + sobrante de la ultima celda
         charCellHeight * lineCount,
         32,
         0x00FF0000, // red mask (32-bit)
@@ -2244,7 +2246,8 @@ void DoomCanvas_drawFontSur(DoomCanvas_t* doomCanvas, char* text, int x, int y, 
 
     SDL_Surface* fontSurface = SDL_CreateRGBSurface(
         SDL_SWSURFACE,
-        charAdvanceWidth * (len - strBeg), // width is maximum possible without breaking lines
+        //charAdvanceWidth * (len - strBeg), // width is maximum possible without breaking lines
+		charAdvanceWidth * (len - strBeg) + (charCellWidth - charAdvanceWidth), // + sobrante de la ultima celda
         charCellHeight * lineCount,
         32,
         0x00FF0000, // red mask (32-bit)

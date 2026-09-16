@@ -1,4 +1,3 @@
-
 #ifdef __3DS__
 #include <SDL/SDL.h>
 #else
@@ -6,6 +5,7 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "DoomRPG.h"
 #include "DoomCanvas.h"
@@ -93,7 +93,8 @@ char* MenuSystem_buildDivider(MenuSystem_t* menuSystem, char* str)
 	}
 	menuSystem->stringBuffer[idnx] = ' ';
 
-	strncpy(&menuSystem->stringBuffer[idnx+1], str, 32);
+	//strncpy(&menuSystem->stringBuffer[idnx+1], str, 32);
+	strncpy(&menuSystem->stringBuffer[idnx+1], str, sizeof(menuSystem->stringBuffer) - (idnx + 1)); //Limita el tamanio al real y no arbitrario
 
 	idnx = idnx + 1 + len;
 	menuSystem->stringBuffer[idnx] = ' ';
@@ -114,10 +115,6 @@ void MenuSystem_select(MenuSystem_t* menuSystem)
 	Sound_playSound(menuSystem->doomRpg->sound, 5046, 0, 3);
 
 	menu = Menu_select(menuSystem->doomRpg->menu, menuSystem->menu, menuSystem->selectedIndex);
-	if (menu == MENU_MAIN_HELP_ABOUT)
-		menu = MENU_MAIN_EXIT;
-	if (menu == MENU_MAIN_OPTIONS)
-		menu = MENU_MAIN_HELP_ABOUT;
 	if (menuSystem->menu != menu) {
 		MenuSystem_setMenu(menuSystem, menu);
 	}
@@ -393,24 +390,35 @@ void MenuSystem_paint(MenuSystem_t* menuSystem)
 			menuSystem->maxItems = (doomCanvas->displayRect.h - i2) / 12;
 		}
 
-		int i101 = doomCanvas->SCR_CX + i - 64;
-		if (menuSystem->maxItems > 0 && menuSystem->numItems > menuSystem->maxItems) {
-			DoomCanvas_drawScrollBarSur(doomCanvas, i2, menuSystem->maxItems * 12, menuSystem->scrollIndex, menuSystem->scrollIndex + menuSystem->maxItems, menuSystem->numItems, menuSurface);
-		}
-
 		int local_34 = 9;
 		int local_38 = 7;
 		int local_28 = 12;
 		boolean isLargerFont = false;
 
-		if ((menuSystem->menu > MENU_NONE) && (menuSystem->menu < MENU_MAIN_OPTIONS)) {
+/* 		if ((menuSystem->menu > MENU_NONE) && (menuSystem->menu < MENU_MAIN_OPTIONS)) {
 			if ((menuSystem->menu != MENU_MAIN_HELP_ABOUT) && menuSystem->doomRpg->doomCanvas->largeStatus) {
 				local_34 = 13;
 				local_38 = 10;
 				local_28 = 17;
 				isLargerFont = true;
 			}
+		} */
+		if ((menuSystem->type == 4 || menuSystem->type == 6 || menuSystem->type == 7) && menuSystem->doomRpg->doomCanvas->largeStatus) {
+			local_34 = 13;
+			local_38 = 10;
+			local_28 = 17;
+			isLargerFont = true;
 		}
+
+		
+		// El ancho de columna (±64 original) tiene que crecer en la misma
+		// proporción que el ancho de carácter de la fuente grande (10/7 ~= 1.43),
+		// si no el label ("FullScreen:") invade el espacio del valor ("on"/"off").
+		int boxHalfWidth = isLargerFont ? 91 : 64;
+		int i101 = doomCanvas->SCR_CX + i - boxHalfWidth;
+		
+		if (menuSystem->maxItems > 0 && menuSystem->numItems > menuSystem->maxItems) {
+			DoomCanvas_drawScrollBarSur(doomCanvas, i2, menuSystem->maxItems * 12, menuSystem->scrollIndex, menuSystem->scrollIndex + menuSystem->maxItems, menuSystem->numItems, boxHalfWidth, menuSurface);		}
 
 		int local_2c = local_28 >> 1;
 
@@ -537,6 +545,7 @@ void MenuSystem_paint(MenuSystem_t* menuSystem)
 		//DoomRPG_setFontColor(menuSystem->doomRpg, 0xffffffff);
 
 	}
+	SDL_FreeSurface(menuSurface);
 }
 
 void MenuSystem_scrollDown(MenuSystem_t* menuSystem)
